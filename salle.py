@@ -46,9 +46,13 @@ class Salle:
         }
         self.file_attente = []
 
-        # Spotify : cache fichier par salle
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.cache_path = os.path.join(base_dir, f'.cache-{self.nom}')
+        # Spotify : cache fichier par salle (dir configurable pour Docker/prod)
+        cache_dir = os.environ.get(
+            'SPOTIFY_CACHE_DIR',
+            os.path.dirname(os.path.abspath(__file__)),
+        )
+        os.makedirs(cache_dir, exist_ok=True)
+        self.cache_path = os.path.join(cache_dir, f'.cache-{self.nom}')
         self.auth_manager = SpotifyOAuth(
             client_id=config['client_id'],
             client_secret=config['client_secret'],

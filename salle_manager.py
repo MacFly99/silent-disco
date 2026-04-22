@@ -17,6 +17,7 @@ from salle import Salle
 from spotify_sync import demarrer_surveillance_salle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CACHE_DIR = os.environ.get('SPOTIFY_CACHE_DIR', BASE_DIR)
 
 
 class SalleManager:
@@ -77,7 +78,7 @@ class SalleManager:
     def _nettoyer_caches_orphelins(self):
         """Supprime les fichiers .cache-<nom> dont la salle n'existe plus."""
         noms_actifs = set(self._salles.keys())
-        for chemin in glob.glob(os.path.join(BASE_DIR, '.cache-*')):
+        for chemin in glob.glob(os.path.join(CACHE_DIR, '.cache-*')):
             nom_cache = os.path.basename(chemin)[len('.cache-'):]
             if nom_cache and nom_cache not in noms_actifs:
                 try:
