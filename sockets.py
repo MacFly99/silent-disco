@@ -7,15 +7,15 @@ from logs_util import logger_vote
 from stats import enregistrer_vote
 
 
-def register_sockets(socketio, salles):
+def register_sockets(socketio, manager):
 
     @socketio.on('rejoindre_salle')
     def on_rejoindre(data):
         salle_nom = (data or {}).get('salle')
-        if salle_nom not in salles:
+        salle = manager.get(salle_nom)
+        if salle is None:
             return
         join_room(salle_nom)
-        salle = salles[salle_nom]
         emit('mise_a_jour_votes', {
             'chansons': salle.chansons,
             'tour': salle.tour,
@@ -33,7 +33,7 @@ def register_sockets(socketio, salles):
         pseudo = ((data or {}).get('pseudo') or 'anonyme').strip()[:30] or 'anonyme'
         user_uuid = (data or {}).get('uuid')
 
-        salle = salles.get(salle_nom)
+        salle = manager.get(salle_nom)
         if salle is None:
             emit('erreur', {'message': 'Salle inconnue'})
             return

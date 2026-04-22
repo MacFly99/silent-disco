@@ -2,3 +2,7 @@ flask
 flask-socketio
 spotipy
 python-dotenv
+
+# Pour déploiement en prod (optionnel)
+gunicorn
+eventlet

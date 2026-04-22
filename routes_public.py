@@ -7,15 +7,15 @@ from flask import abort, redirect, render_template, request, url_for
 from stats import obtenir_classement
 
 
-def register_public_routes(app, socketio, salles):
+def register_public_routes(app, socketio, manager):
 
     @app.route('/')
     def index():
-        return render_template('index.html', salles=list(salles.values()))
+        return render_template('index.html', salles=manager.liste())
 
     @app.route('/vote/<salle_nom>')
     def vote(salle_nom):
-        salle = salles.get(salle_nom)
+        salle = manager.get(salle_nom)
         if salle is None:
             abort(404)
         deja_vote = salle.a_vote(request.remote_addr)
@@ -23,7 +23,7 @@ def register_public_routes(app, socketio, salles):
 
     @app.route('/display/<salle_nom>')
     def display(salle_nom):
-        salle = salles.get(salle_nom)
+        salle = manager.get(salle_nom)
         if salle is None:
             abort(404)
         return render_template('display.html', salle=salle)
@@ -37,11 +37,11 @@ def register_public_routes(app, socketio, salles):
         }
         return render_template('stats.html', classements=classements)
 
-    # --- OAuth Spotify : à faire UNE FOIS par salle. Ensuite le cache persiste. ---
+    # --- OAuth Spotify : à faire UNE FOIS par salle. Le cache persiste. ---
 
     @app.route('/login/<salle_nom>')
     def login(salle_nom):
-        salle = salles.get(salle_nom)
+        salle = manager.get(salle_nom)
         if salle is None:
             abort(404)
         return redirect(salle.authorize_url())
@@ -50,7 +50,7 @@ def register_public_routes(app, socketio, salles):
     def callback():
         salle_nom = request.args.get('state')
         code = request.args.get('code')
-        salle = salles.get(salle_nom)
+        salle = manager.get(salle_nom)
         if salle is None or not code:
             abort(400)
         try:

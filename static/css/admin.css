@@ -114,6 +114,122 @@ body {
 }
 .btn-spotify:active { transform: scale(0.97); }
 
+/* --- Édition des salles --- */
+#salles-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.salle-edit {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+.salle-edit-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.pastille-couleur {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.salle-edit .champ-nom {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: 700;
+    text-transform: capitalize;
+    outline: none;
+}
+.salle-edit .champ-nom:not([readonly]) {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+.salle-edit .champ-couleur {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+.salle-edit .btn-supprimer {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 700;
+}
+.salle-edit .btn-supprimer:hover { background: rgba(239, 68, 68, 0.1); }
+.salle-edit label {
+    display: block;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    margin: 8px 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+.salle-edit label .hint {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-style: italic;
+}
+.salle-edit input[type="text"],
+.salle-edit input[type="password"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    outline: none;
+    box-sizing: border-box;
+}
+.salle-edit input:focus { border-color: var(--accent); }
+
+.salles-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+.btn-primaire, .btn-secondaire {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+.btn-primaire {
+    background: #1DB954;
+    color: #fff;
+    border: none;
+}
+.btn-primaire:hover { filter: brightness(1.1); }
+.btn-primaire:disabled { background: #333; color: #777; cursor: not-allowed; }
+.btn-secondaire {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.btn-secondaire:hover { background: rgba(255, 255, 255, 0.05); }
+
 .note {
     color: var(--text-muted);
     font-size: 0.85em;

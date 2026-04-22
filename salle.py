@@ -1,5 +1,6 @@
 import os
 import random
+import threading
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -12,17 +13,19 @@ class Salle:
     Une salle = une playlist + un compte Spotify + un état de vote.
     Chaque salle est 100% indépendante : propre client Spotify (cache séparé),
     propre thread de surveillance, propre queue.
+
+    `config` est un dict issu de config/salles.json :
+        { nom, couleur, client_id, client_secret, playlist_id }
     """
 
-    def __init__(self, nom, couleur='#1DB954', seuil_file=0.5):
-        self.nom = nom
-        self.couleur = couleur
+    def __init__(self, config, seuil_file=0.5):
+        self.nom = config['nom']
+        self.couleur = config.get('couleur', '#1DB954')
+        self.playlist_id = config['playlist_id']
         self.seuil_file = seuil_file
 
-        prefixe = f'SPOTIFY_{nom.upper()}'
-        self.playlist_id = os.environ[f'{prefixe}_PLAYLIST_ID']
-        client_id = os.environ[f'{prefixe}_CLIENT_ID']
-        client_secret = os.environ[f'{prefixe}_CLIENT_SECRET']
+        # Flag d'arrêt pour la thread de surveillance
+        self.stop_flag = threading.Event()
 
         # État du vote
         self.pool_playlist = []
@@ -34,7 +37,7 @@ class Salle:
         self.detail_votes_tour = {}
         self.tour = 0
 
-        # État de lecture Spotify (par salle)
+        # État de lecture Spotify
         self.titre_en_cours = ''
         self.vote_calcule = False
         self.chanson_en_cours = {
@@ -43,18 +46,32 @@ class Salle:
         }
         self.file_attente = []
 
-        # Spotify : cache fichier, un fichier par salle (persistant entre restarts)
+        # Spotify : cache fichier par salle
         base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.cache_path = os.path.join(base_dir, f'.cache-{self.nom}')
         self.auth_manager = SpotifyOAuth(
-            client_id=client_id,
-            client_secret=client_secret,
+            client_id=config['client_id'],
+            client_secret=config['client_secret'],
             redirect_uri=os.environ.get('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:5001/callback'),
             scope=SCOPE,
-            cache_path=os.path.join(base_dir, f'.cache-{nom}'),
+            cache_path=self.cache_path,
             show_dialog=True,
             open_browser=False,
         )
         self.sp = spotipy.Spotify(auth_manager=self.auth_manager)
+
+    # --- Cycle de vie ---
+
+    def invalider_cache(self):
+        """Supprime le cache .cache-<nom> (utilisé quand on change les credentials)."""
+        try:
+            os.remove(self.cache_path)
+        except OSError:
+            pass
+
+    def demander_arret(self):
+        """Signale à la thread de surveillance de s'arrêter à son prochain tick."""
+        self.stop_flag.set()
 
     # --- Authentification ---
 

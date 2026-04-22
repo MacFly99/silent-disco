@@ -27,6 +27,38 @@
         <h1>Silent Disco</h1>
     </div>
 
+    <!-- --- Config salles (credentials Spotify, playlists) --- -->
+    <div class="section">
+        <h2>Salles & playlists</h2>
+        <div id="salles-editor">
+            {% for s in salles_config %}
+            <div class="salle-edit" data-nom="{{ s.nom }}">
+                <div class="salle-edit-header">
+                    <span class="pastille-couleur" style="background: {{ s.couleur }}"></span>
+                    <input class="champ-nom" type="text" value="{{ s.nom }}" placeholder="nom" readonly>
+                    <input class="champ-couleur" type="color" value="{{ s.couleur }}">
+                    <button class="btn-supprimer" type="button" aria-label="Supprimer">✕</button>
+                </div>
+                <label>Client ID</label>
+                <input class="champ-client-id" type="text" value="{{ s.client_id }}">
+                <label>Client Secret <span class="hint">(laisse vide pour garder l'actuel : {{ s.client_secret_masque or 'aucun' }})</span></label>
+                <input class="champ-client-secret" type="password" value="" placeholder="•••">
+                <label>Playlist ID</label>
+                <input class="champ-playlist-id" type="text" value="{{ s.playlist_id }}">
+            </div>
+            {% endfor %}
+        </div>
+        <div class="salles-actions">
+            <button id="btn-ajouter-salle" class="btn-secondaire" type="button">+ Ajouter une salle</button>
+            <button id="btn-sauver-salles" class="btn-primaire" type="button">Sauvegarder</button>
+        </div>
+        <p class="note">
+            Les modifications sont prises en compte <strong>à chaud</strong> (pas besoin de restart).
+            Si tu changes le Client ID d'une salle, son cache Spotify est invalidé et
+            il faudra refaire l'OAuth via la section "Comptes Spotify" ci-dessous.
+        </p>
+    </div>
+
     <!-- --- Comptes Spotify --- -->
     <div class="section">
         <h2>Comptes Spotify</h2>
