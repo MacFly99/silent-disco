@@ -1,0 +1,127 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    margin: 0;
+}
+
+/* --- Chanson en cours --- */
+#en-cours {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 50px;
+    width: 100%;
+    max-width: 800px;
+}
+#pochette-en-cours {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+#titre-en-cours {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+#artiste-en-cours {
+    font-size: 1.3em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* Barre de progression */
+#barre-container {
+    width: 100%;
+    background: #333;
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 8px;
+}
+#barre {
+    height: 6px;
+    background: var(--accent);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.5s linear;
+}
+#temps {
+    font-size: 0.85em;
+    color: var(--text-muted);
+}
+
+/* --- Section de vote --- */
+h2 { margin-bottom: 20px; text-align: center; }
+#chansons {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.chanson-card {
+    text-align: center;
+    width: 220px;
+}
+.chanson-card img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+.chanson-card .titre {
+    font-weight: bold;
+    font-size: 1em;
+    margin-bottom: 2px;
+}
+.chanson-card .artiste {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+/* Barre de votes */
+.barre-votes-container {
+    width: 100%;
+    background: #333;
+    border-radius: 4px;
+    height: 18px;
+    margin-bottom: 6px;
+    overflow: hidden;
+}
+.barre-votes {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.4s ease-out;
+}
+.votes-label {
+    font-size: 1em;
+    color: var(--accent);
+    font-weight: bold;
+}
+
+/* --- File d'attente --- */
+#file-attente {
+    margin-bottom: 40px;
+    text-align: center;
+}
+#file-liste {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.pastille-salle {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}

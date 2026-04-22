@@ -1,0 +1,165 @@
+body {
+    padding:
+        max(16px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(16px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    background:
+        radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
+        radial-gradient(circle at 80% 100%, rgba(29, 185, 84, 0.15), transparent 40%),
+        var(--bg);
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.landing-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.landing-header .label {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.landing-header h1 {
+    font-size: 2.2em;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -1px;
+}
+.landing-header p {
+    color: var(--text-muted);
+    margin: 8px 0 0 0;
+}
+
+.salles-grid {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    max-width: 520px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 560px) {
+    .salles-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.salle-carte {
+    --c: #1DB954;
+    --c-rgb: 29, 185, 84;
+    position: relative;
+    display: block;
+    padding: 32px 24px;
+    border-radius: 20px;
+    background:
+        linear-gradient(135deg, rgba(var(--c-rgb), 0.18), rgba(var(--c-rgb), 0.05)),
+        rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(var(--c-rgb), 0.35);
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    overflow: hidden;
+    min-height: 140px;
+}
+.salle-carte:active { transform: scale(0.97); }
+.salle-carte .nom {
+    font-size: 1.8em;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    text-transform: capitalize;
+    margin-bottom: 4px;
+}
+.salle-carte .sous-titre {
+    color: var(--text-muted);
+    font-size: 0.9em;
+}
+.salle-carte .badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c);
+    box-shadow: 0 0 12px var(--c);
+}
+.salle-carte.pop       { --c: #3b82f6; --c-rgb: 59, 130, 246; }
+.salle-carte.nostalgie { --c: #1DB954; --c-rgb: 29, 185, 84; }
+
+.landing-footer {
+    margin-top: 32px;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    text-align: center;
+}
+.landing-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(255,255,255,0.2);
+}
+
+/* --- Formulaire pseudo sur la landing --- */
+#pseudo-step, #salle-step { display: none; width: 100%; max-width: 520px; }
+body.has-pseudo #salle-step { display: block; }
+body:not(.has-pseudo) #pseudo-step { display: flex; flex-direction: column; align-items: center; }
+
+#pseudo-step .landing-form {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+#pseudo-step input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1.1em;
+    padding: 16px 18px;
+    border-radius: 12px;
+    outline: none;
+    font-family: inherit;
+}
+#pseudo-step input:focus {
+    border-color: #1DB954;
+    background: rgba(29, 185, 84, 0.06);
+}
+#pseudo-step button {
+    background: #1DB954;
+    color: #fff;
+    border: none;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(29, 185, 84, 0.4);
+    transition: transform 0.12s ease;
+}
+#pseudo-step button:active { transform: scale(0.97); }
+#pseudo-step button:disabled {
+    background: #333; color: #777; box-shadow: none; cursor: not-allowed;
+}
+
+/* Pill de pseudo au-dessus des salles (cliquable pour changer) */
+#pseudo-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    font-size: 0.85em;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+#pseudo-pill strong { color: #fff; font-weight: 700; }

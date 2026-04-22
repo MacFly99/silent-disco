@@ -1,0 +1,44 @@
+(function() {
+    const body = document.body;
+    const pill = document.getElementById('pseudo-pill');
+    const form = document.getElementById('pseudo-form');
+    const input = document.getElementById('pseudo-input');
+    const submit = document.getElementById('pseudo-submit');
+
+    function refresh() {
+        const pseudo = localStorage.getItem('pseudo') || '';
+        if (pseudo) {
+            body.classList.add('has-pseudo');
+            pill.innerHTML = `<strong>${escapeHtml(pseudo)}</strong> · changer`;
+        } else {
+            body.classList.remove('has-pseudo');
+            setTimeout(() => input.focus(), 50);
+        }
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    input.addEventListener('input', () => {
+        submit.disabled = input.value.trim().length === 0;
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const valeur = input.value.trim().slice(0, 30);
+        if (!valeur) return;
+        localStorage.setItem('pseudo', valeur);
+        input.value = '';
+        refresh();
+    });
+
+    pill.addEventListener('click', () => {
+        localStorage.removeItem('pseudo');
+        refresh();
+    });
+
+    refresh();
+})();

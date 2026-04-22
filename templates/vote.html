@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Vote · {{ salle.nom|capitalize }}{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vote.css') }}">
+{% endblock %}
+
+{% block content %}
+<a class="retour" href="{{ url_for('index') }}" aria-label="Retour à l'accueil">
+    <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
+    <span>Choix de salle</span>
+</a>
+
+<header>
+    <div class="label-salle">Silent Disco · {{ salle.nom }}</div>
+    <h1>Quelle chanson ensuite ?</h1>
+    <div id="pseudo-actuel"></div>
+</header>
+
+<div id="chansons"></div>
+
+<div id="waiting">
+    <div class="check">
+        <svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+    </div>
+    <h2>Vote enregistré</h2>
+    <p>
+        En attente du prochain tour<span class="dots"><span></span><span></span><span></span></span>
+    </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.INITIAL_STATE = {
+        salle: {{ salle.nom | tojson }},
+        couleur: {{ salle.couleur | tojson }},
+        chansons: {{ salle.chansons | tojson }},
+        tour: {{ salle.tour }},
+        deja_vote: {{ deja_vote | tojson }},
+    };
+</script>
+<script src="{{ url_for('static', filename='js/vote.js') }}"></script>
+{% endblock %}

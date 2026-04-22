@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Display · {{ salle.nom|capitalize }}{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/display.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="en-cours">
+    <img id="pochette-en-cours" src="" alt="Pochette">
+    <div style="flex: 1">
+        <div id="titre-en-cours">En attente de Spotify...</div>
+        <div id="artiste-en-cours"></div>
+        <div id="barre-container"><div id="barre"></div></div>
+        <div id="temps">0:00 / 0:00</div>
+    </div>
+</div>
+
+<div id="file-attente" style="display:none; margin-bottom: 40px;">
+    <h2>À venir</h2>
+    <div id="file-liste"></div>
+</div>
+
+<div id="section-vote">
+    <h2>
+        <span class="label-salle">{{ salle.nom }}</span><br>
+        Votez pour la prochaine chanson !
+    </h2>
+    <div id="chansons"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.INITIAL_STATE = {
+        salle: {{ salle.nom | tojson }},
+        couleur: {{ salle.couleur | tojson }},
+        chansons: {{ salle.chansons | tojson }},
+        tour: {{ salle.tour }},
+    };
+</script>
+<script src="{{ url_for('static', filename='js/display.js') }}"></script>
+{% endblock %}

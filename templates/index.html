@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Silent Disco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+
+    <!-- Étape 1 : saisie du pseudo -->
+    <div id="pseudo-step">
+        <div class="landing-header">
+            <div class="label">Silent Disco</div>
+            <h1>Bienvenue !</h1>
+            <p>Entre ton pseudo pour commencer.</p>
+        </div>
+        <form id="pseudo-form" class="landing-form" autocomplete="off">
+            <input id="pseudo-input" type="text" placeholder="Ton pseudo"
+                   maxlength="30" autocomplete="off" autocapitalize="words" required>
+            <button id="pseudo-submit" type="submit" disabled>Continuer</button>
+        </form>
+    </div>
+
+    <!-- Étape 2 : choix de la salle -->
+    <div id="salle-step">
+        <div class="landing-header">
+            <div class="label">Silent Disco</div>
+            <h1>Choisis ta salle</h1>
+            <p>Tu pourras changer à tout moment.</p>
+        </div>
+
+        <div style="text-align:center">
+            <span id="pseudo-pill"></span>
+        </div>
+
+        <div class="salles-grid">
+            {% for salle in salles %}
+            <a class="salle-carte {{ salle.nom }}" href="{{ url_for('vote', salle_nom=salle.nom) }}">
+                <div class="badge"></div>
+                <div class="nom">{{ salle.nom }}</div>
+                <div class="sous-titre">Voter pour la prochaine chanson</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>
