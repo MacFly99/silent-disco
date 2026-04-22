@@ -31,6 +31,12 @@
         const valeur = input.value.trim().slice(0, 30);
         if (!valeur) return;
         localStorage.setItem('pseudo', valeur);
+        // Génère et stocke un uuid persistant si pas encore présent
+        if (!localStorage.getItem('user_uuid')) {
+            const uuid = (crypto.randomUUID && crypto.randomUUID()) ||
+                (Date.now().toString(36) + Math.random().toString(36).slice(2));
+            localStorage.setItem('user_uuid', uuid);
+        }
         input.value = '';
         refresh();
     });

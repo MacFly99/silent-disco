@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Stats · Silent Disco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stats.css') }}">
+</head>
+<body>
+
+    <a class="retour-accueil" href="{{ url_for('index') }}">
+        <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
+        <span>accueil</span>
+    </a>
+
+    <div class="stats-header">
+        <div class="label">Silent Disco</div>
+        <h1>Classement des votants</h1>
+        <div class="compteur">
+            {{ classement | length }} votant{{ 's' if classement | length > 1 else '' }}
+            · {{ classement | sum(attribute='votes') }} vote{{ 's' if classement | sum(attribute='votes') > 1 else '' }}
+        </div>
+    </div>
+
+    <div class="classement">
+        {% if classement %}
+            {% for user in classement %}
+            <div class="ligne {% if loop.index == 1 %}top-1{% elif loop.index == 2 %}top-2{% elif loop.index == 3 %}top-3{% endif %}">
+                <div class="rang">
+                    {% if loop.index == 1 %}🥇
+                    {% elif loop.index == 2 %}🥈
+                    {% elif loop.index == 3 %}🥉
+                    {% else %}{{ loop.index }}
+                    {% endif %}
+                </div>
+                <div class="pseudo">
+                    {{ user.pseudo }}
+                    <span class="meta">depuis {{ user.first_seen[:16] | replace('T', ' à ') }}</span>
+                </div>
+                <div class="votes">
+                    {{ user.votes }}<span class="unite"> vote{{ 's' if user.votes > 1 else '' }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="vide">Aucun vote pour le moment.</div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

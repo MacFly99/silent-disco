@@ -1,0 +1,290 @@
+body {
+    padding:
+        max(24px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(32px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    background: var(--bg);
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.admin-header .label {
+    font-size: 0.75em;
+    color: #ef4444;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+.admin-header h1 {
+    font-size: 2em;
+    font-weight: 900;
+    margin: 0;
+}
+
+.retour-accueil {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95em;
+    font-weight: 600;
+    padding: 10px 16px 10px 12px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    margin-bottom: 20px;
+}
+.retour-accueil svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* --- Section clear --- */
+.section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+.section h2 {
+    font-size: 1.15em;
+    margin: 0 0 14px 0;
+    font-weight: 800;
+}
+
+.actions-clear {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.btn-clear {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    padding: 10px 16px;
+    font-size: 0.95em;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+.btn-clear:hover { background: rgba(239, 68, 68, 0.1); }
+.btn-clear:active { transform: scale(0.97); }
+
+/* --- Boutons Spotify par salle --- */
+.btn-spotify {
+    --c: #1DB954;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95em;
+    text-transform: capitalize;
+}
+.btn-spotify.ok {
+    border-color: var(--c);
+    background: rgba(255, 255, 255, 0.03);
+}
+.btn-spotify .pastille {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #555;
+}
+.btn-spotify.ok .pastille {
+    background: var(--c);
+    box-shadow: 0 0 10px var(--c);
+}
+.btn-spotify .etat {
+    font-size: 0.8em;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-transform: none;
+}
+.btn-spotify:active { transform: scale(0.97); }
+
+.note {
+    color: var(--text-muted);
+    font-size: 0.85em;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+/* --- Fichiers de logs --- */
+.fichier {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+.fichier-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.fichier-nom {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    flex: 1;
+    min-width: 180px;
+    word-break: break-all;
+}
+.fichier-badge {
+    background: rgba(29, 185, 84, 0.15);
+    color: #1DB954;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.fichier-meta {
+    color: var(--text-muted);
+    font-size: 0.85em;
+}
+.fichier-download {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.9em;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.fichier-download:hover { background: rgba(59, 130, 246, 0.1); }
+
+.tail {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.78em;
+    color: #d4d4d4;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.tail:empty::before {
+    content: "(vide)";
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.vide-liste {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px;
+    font-style: italic;
+}
+
+/* --- Modal de confirmation --- */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    padding: 20px;
+}
+.modal-backdrop.visible { display: flex; }
+.modal {
+    background: #1a1a1a;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+}
+.modal .icone {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+.modal h3 {
+    color: #ef4444;
+    margin: 0 0 12px 0;
+    font-size: 1.3em;
+}
+.modal p {
+    color: var(--text-muted);
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+.modal p strong { color: #fff; }
+.modal-input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 1em;
+    padding: 12px;
+    border-radius: 10px;
+    outline: none;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 2px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+.modal-input:focus { border-color: #ef4444; }
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.btn-annuler {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-confirmer {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.btn-confirmer:disabled {
+    background: #333;
+    color: #777;
+    cursor: not-allowed;
+}
+
+.flash {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1DB954;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    z-index: 30;
+    display: none;
+    box-shadow: 0 4px 14px rgba(29, 185, 84, 0.4);
+}
+.flash.visible { display: block; }

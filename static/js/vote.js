@@ -32,6 +32,19 @@
             return;
         }
         body.classList.remove('has-voted');
+
+        const pret = chansons.every(c => c.titre && c.pochette);
+        if (!pret) {
+            container.innerHTML = `
+                <div class="attente">
+                    <div class="spinner"></div>
+                    <p>La salle n'est pas encore prête.<br>
+                       L'organisateur doit connecter Spotify.</p>
+                </div>
+            `;
+            return;
+        }
+
         container.innerHTML = chansons.map(c => `
             <div class="chanson-card">
                 <img src="${c.pochette}" alt="${escapeHtml(c.titre)}">
@@ -50,7 +63,8 @@
         if (aVote) return;
         aVote = true;
         if (navigator.vibrate) navigator.vibrate(15);
-        socket.emit('voter', { chanson_id: chansonId, pseudo, salle: salleNom });
+        const user_uuid = localStorage.getItem('user_uuid') || '';
+        socket.emit('voter', { chanson_id: chansonId, pseudo, salle: salleNom, uuid: user_uuid });
         render();
     };
 

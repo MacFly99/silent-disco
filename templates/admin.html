@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Admin · Silent Disco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+    <div id="flash" class="flash"></div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <a class="retour-accueil" href="{{ url_for('index') }}">
+            <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
+            <span>accueil</span>
+        </a>
+        <a class="retour-accueil" href="{{ url_for('admin_logout') }}" style="color:#ef4444">
+            <span>se déconnecter</span>
+        </a>
+    </div>
+
+    <div class="admin-header">
+        <div class="label">Admin</div>
+        <h1>Silent Disco</h1>
+    </div>
+
+    <!-- --- Spotify --- -->
+    <div class="section">
+        <h2>Comptes Spotify</h2>
+        <div class="actions-clear">
+            {% for s in auth_statuses %}
+            <a class="btn-spotify {% if s.authentifie %}ok{% endif %}"
+               href="{{ url_for('admin_spotify_login', salle_nom=s.nom) }}"
+               style="--c: {{ s.couleur }}">
+                <span class="pastille"></span>
+                {{ s.nom }}
+                <span class="etat">
+                    {% if s.authentifie %}connectée · reconnecter{% else %}à connecter{% endif %}
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+        <p class="note">
+            Chaque salle est liée à un compte Spotify Premium séparé.
+            Pour connecter la seconde avec un autre compte : déconnecte-toi d'abord de spotify.com
+            (ou utilise un onglet privé) avant de cliquer.
+        </p>
+    </div>
+
+    <!-- --- Section clear --- -->
+    <div class="section">
+        <h2>Archiver les logs</h2>
+        <div class="actions-clear">
+            {% for t in types %}
+            <button class="btn-clear" data-type="{{ t }}">Archiver {{ t }}</button>
+            {% endfor %}
+        </div>
+        <p class="note">
+            L'archivage <strong>ne supprime pas</strong> les fichiers : ils sont déplacés dans <code>logs/archive/&lt;timestamp&gt;_&lt;type&gt;/</code>.
+            Utile avant une nouvelle soirée pour repartir sur des compteurs propres.<br>
+            <strong>votes</strong> : historique de chaque vote · <strong>tours</strong> : résultat de chaque tour ·
+            <strong>users</strong> : liste des utilisateurs + classement.
+        </p>
+    </div>
+
+    <!-- --- Fichiers de logs courants --- -->
+    <div class="section">
+        <h2>Logs courants</h2>
+        {% if fichiers %}
+            {% for f in fichiers %}
+            <div class="fichier">
+                <div class="fichier-header">
+                    <span class="fichier-nom">{{ f.nom }}</span>
+                    <span class="fichier-badge">{{ f.type }}</span>
+                    <span class="fichier-meta">{{ f.lignes }} lignes · {{ (f.taille / 1024) | round(1) }} Ko</span>
+                    <a class="fichier-download" href="{{ url_for('admin_download', nom_fichier=f.nom) }}">télécharger</a>
+                </div>
+                <div class="tail">{{ tails.get(f.nom, []) | join('') }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="vide-liste">Aucun fichier de log pour le moment.</div>
+        {% endif %}
+    </div>
+
+    <!-- --- Modal de confirmation --- -->
+    <div id="modal-backdrop" class="modal-backdrop">
+        <div class="modal">
+            <div class="icone">⚠️</div>
+            <h3>Archiver les logs <span id="modal-type"></span> ?</h3>
+            <p>
+                Les fichiers seront <strong>déplacés</strong> dans <code>logs/archive/</code>.
+                L'opération est réversible manuellement.<br>
+                Tape <strong>CONFIRMER</strong> pour valider.
+            </p>
+            <input id="modal-input" class="modal-input" type="text" autocomplete="off" placeholder="CONFIRMER">
+            <div class="modal-actions">
+                <button id="btn-annuler" class="btn-annuler">Annuler</button>
+                <button id="btn-confirmer" class="btn-confirmer" disabled>Archiver</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>

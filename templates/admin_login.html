@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Admin · Silent Disco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 24px;
+            background: var(--bg);
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 32px 28px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+        }
+        .login-card .label {
+            color: #ef4444;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .login-card h1 {
+            margin: 0 0 20px 0;
+            font-size: 1.4em;
+            font-weight: 800;
+        }
+        .login-card input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.1em;
+            padding: 14px 16px;
+            border-radius: 10px;
+            outline: none;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        .login-card input:focus { border-color: #ef4444; }
+        .login-card button {
+            width: 100%;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .erreur {
+            color: #ef4444;
+            font-size: 0.9em;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="label">Admin</div>
+        <h1>Silent Disco</h1>
+        {% if erreur %}<div class="erreur">{{ erreur }}</div>{% endif %}
+        <form method="post" autocomplete="off">
+            <input type="password" name="password" placeholder="Mot de passe admin" required autofocus>
+            <button type="submit">Entrer</button>
+        </form>
+    </div>
+</body>
+</html>
