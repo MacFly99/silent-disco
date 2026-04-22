@@ -27,6 +27,32 @@
         <h1>Silent Disco</h1>
     </div>
 
+    <!-- --- Comptes Spotify --- -->
+    <div class="section">
+        <h2>Comptes Spotify</h2>
+        <div class="actions-clear">
+            {% for s in auth_statuses %}
+            <a class="btn-spotify {% if s.authentifie %}ok{% endif %}"
+               href="{{ url_for('login', salle_nom=s.nom) }}"
+               style="--c: {{ s.couleur }}"
+               target="_blank">
+                <span class="pastille"></span>
+                {{ s.nom }}
+                <span class="etat">
+                    {% if s.authentifie %}connectée · reconnecter{% else %}à connecter{% endif %}
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+        <p class="note">
+            Une seule fois par salle : clique pour faire l'OAuth Spotify.
+            Ensuite le cache <code>.cache-&lt;salle&gt;</code> persiste et l'app se reconnecte
+            toute seule à chaque restart.<br>
+            Pour la 2e salle avec un autre compte : déconnecte-toi de spotify.com
+            (ou utilise un onglet privé) avant de cliquer.
+        </p>
+    </div>
+
     <!-- --- Section clear --- -->
     <div class="section">
         <h2>Archiver les logs</h2>

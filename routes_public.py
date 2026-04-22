@@ -30,7 +30,12 @@ def register_public_routes(app, socketio, salles):
 
     @app.route('/stats')
     def stats_page():
-        return render_template('stats.html', classement=obtenir_classement())
+        classements = {
+            'general': obtenir_classement(),
+            'pop': obtenir_classement('pop'),
+            'nostalgie': obtenir_classement('nostalgie'),
+        }
+        return render_template('stats.html', classements=classements)
 
     # --- OAuth Spotify : à faire UNE FOIS par salle. Ensuite le cache persiste. ---
 

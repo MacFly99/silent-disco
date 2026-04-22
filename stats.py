@@ -34,8 +34,8 @@ def _append_users_log(ligne):
         f.write(ligne + '\n')
 
 
-def enregistrer_vote(user_uuid, pseudo):
-    """Crée l'entrée utilisateur si nouvelle, sinon incrémente le compteur."""
+def enregistrer_vote(user_uuid, pseudo, salle_nom=None):
+    """Crée l'entrée utilisateur si nouvelle, sinon incrémente le compteur global + par salle."""
     if not user_uuid:
         return
     now = datetime.now().isoformat(timespec='seconds')
@@ -44,12 +44,14 @@ def enregistrer_vote(user_uuid, pseudo):
         entry = stats.get(user_uuid)
 
         if entry is None:
-            stats[user_uuid] = {
+            entry = {
                 'pseudo': pseudo,
-                'votes': 1,
+                'votes': 0,
+                'votes_par_salle': {},
                 'first_seen': now,
                 'last_vote': now,
             }
+            stats[user_uuid] = entry
             _append_users_log(f'{now} | NOUVEAU | {user_uuid} | {pseudo}')
         else:
             if entry['pseudo'] != pseudo:
@@ -57,15 +59,33 @@ def enregistrer_vote(user_uuid, pseudo):
                     f'{now} | CHANGEMENT | {user_uuid} | {entry["pseudo"]} -> {pseudo}'
                 )
                 entry['pseudo'] = pseudo
-            entry['votes'] += 1
-            entry['last_vote'] = now
+            entry.setdefault('votes_par_salle', {})
+
+        entry['votes'] += 1
+        if salle_nom:
+            entry['votes_par_salle'][salle_nom] = entry['votes_par_salle'].get(salle_nom, 0) + 1
+        entry['last_vote'] = now
 
         _save(stats)
 
 
-def obtenir_classement():
-    """Retourne la liste triée par votes décroissants."""
+def obtenir_classement(salle_nom=None):
+    """
+    Retourne la liste triée par votes décroissants.
+    Si salle_nom est fourni, ne compte que les votes dans cette salle
+    (et exclut les users qui n'y ont jamais voté).
+    """
     stats = _load()
-    items = list(stats.values())
-    items.sort(key=lambda u: (u['votes'], u['last_vote']), reverse=True)
+    items = []
+    for u in stats.values():
+        u.setdefault('votes_par_salle', {})
+        if salle_nom is None:
+            items.append(u)
+        else:
+            n = u['votes_par_salle'].get(salle_nom, 0)
+            if n > 0:
+                items.append({**u, 'votes_salle': n})
+    key = (lambda u: (u['votes_salle'], u['last_vote'])) if salle_nom \
+        else (lambda u: (u['votes'], u['last_vote']))
+    items.sort(key=key, reverse=True)
     return items

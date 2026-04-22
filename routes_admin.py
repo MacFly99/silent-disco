@@ -18,7 +18,7 @@ def admin_requis(view):
     return wrapped
 
 
-def register_admin_routes(app):
+def register_admin_routes(app, salles):
 
     @app.route('/admin/login', methods=['GET', 'POST'])
     def admin_login():
@@ -42,11 +42,16 @@ def register_admin_routes(app):
     def admin_page():
         fichiers = admin.lister_fichiers_logs()
         tails = {f['nom']: admin.lire_tail(f['nom'], n=30) for f in fichiers}
+        auth_statuses = [
+            {'nom': s.nom, 'couleur': s.couleur, 'authentifie': s.est_authentifie()}
+            for s in salles.values()
+        ]
         return render_template(
             'admin.html',
             fichiers=fichiers,
             tails=tails,
             types=list(admin.TYPES.keys()),
+            auth_statuses=auth_statuses,
         )
 
     @app.route('/admin/archiver/<log_type>', methods=['POST'])

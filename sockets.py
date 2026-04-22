@@ -44,7 +44,7 @@ def register_sockets(socketio, salles):
             return
 
         logger_vote(salle.nom, pseudo, ip, chanson)
-        enregistrer_vote(user_uuid, pseudo)
+        enregistrer_vote(user_uuid, pseudo, salle.nom)
         socketio.emit(
             'mise_a_jour_votes',
             {'chansons': salle.chansons, 'tour': salle.tour, 'salle': salle.nom},

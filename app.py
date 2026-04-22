@@ -1,6 +1,13 @@
-"""Silent Disco — entry point : init Flask, salles, threads, câble les routes."""
+"""Silent Disco — entry point : init Flask, salles, threads, câble les routes.
+
+Options CLI :
+  --clear       Efface user_stats.json et users.log avant de lancer (fresh start)
+  --seed        Ajoute ~50 users fake avec votes aléatoires (pour tester /stats)
+  --seed-clear  --clear + --seed (fresh start + fakes)
+"""
 
 import os
+import sys
 import time
 from threading import Thread
 
@@ -43,7 +50,7 @@ if not salles:
 
 # --- Wire-up ---
 register_public_routes(app, socketio, salles)
-register_admin_routes(app)
+register_admin_routes(app, salles)
 register_sockets(socketio, salles)
 
 
@@ -69,6 +76,22 @@ Thread(target=demarrer, daemon=True).start()
 
 
 if __name__ == '__main__':
+    do_clear = '--clear' in sys.argv or '--seed-clear' in sys.argv
+    do_seed = '--seed' in sys.argv or '--seed-clear' in sys.argv
+
+    if do_clear:
+        from seed_fake_data import STATS_FILE, USERS_LOG
+        for path in (STATS_FILE, USERS_LOG):
+            try:
+                os.remove(path)
+                print(f"✓ {os.path.basename(path)} effacé")
+            except OSError:
+                pass
+
+    if do_seed:
+        from seed_fake_data import seed
+        seed(clear_first=False)  # le clear a déjà été fait au-dessus si demandé
+
     port = int(os.environ.get('PORT', 5001))
     socketio.run(app, host='0.0.0.0', port=port, debug=True,
                  allow_unsafe_werkzeug=True, use_reloader=False)

@@ -18,36 +18,65 @@
     <div class="stats-header">
         <div class="label">Silent Disco</div>
         <h1>Classement des votants</h1>
-        <div class="compteur">
-            {{ classement | length }} votant{{ 's' if classement | length > 1 else '' }}
-            · {{ classement | sum(attribute='votes') }} vote{{ 's' if classement | sum(attribute='votes') > 1 else '' }}
-        </div>
     </div>
 
-    <div class="classement">
-        {% if classement %}
-            {% for user in classement %}
-            <div class="ligne {% if loop.index == 1 %}top-1{% elif loop.index == 2 %}top-2{% elif loop.index == 3 %}top-3{% endif %}">
-                <div class="rang">
-                    {% if loop.index == 1 %}🥇
-                    {% elif loop.index == 2 %}🥈
-                    {% elif loop.index == 3 %}🥉
-                    {% else %}{{ loop.index }}
-                    {% endif %}
-                </div>
-                <div class="pseudo">
-                    {{ user.pseudo }}
-                    <span class="meta">depuis {{ user.first_seen[:16] | replace('T', ' à ') }}</span>
-                </div>
-                <div class="votes">
-                    {{ user.votes }}<span class="unite"> vote{{ 's' if user.votes > 1 else '' }}</span>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="vide">Aucun vote pour le moment.</div>
-        {% endif %}
+    <div class="tabs">
+        <button class="tab active" data-tab="general">Général</button>
+        <button class="tab tab-pop" data-tab="pop">Pop</button>
+        <button class="tab tab-nostalgie" data-tab="nostalgie">Nostalgie</button>
     </div>
+
+    {% for key, classement in classements.items() %}
+    <div class="panel {% if key == 'general' %}active{% endif %}" data-panel="{{ key }}">
+        <div class="compteur">
+            {{ classement | length }} votant{{ 's' if classement | length > 1 else '' }}
+            · {{ classement | sum(attribute='votes_salle' if key != 'general' else 'votes') }} vote{{ 's' if (classement | sum(attribute='votes_salle' if key != 'general' else 'votes')) > 1 else '' }}
+        </div>
+
+        <div class="classement">
+            {% if classement %}
+                {% for user in classement %}
+                <div class="ligne {% if loop.index == 1 %}top-1{% elif loop.index == 2 %}top-2{% elif loop.index == 3 %}top-3{% endif %}">
+                    <div class="rang">
+                        {% if loop.index == 1 %}🥇
+                        {% elif loop.index == 2 %}🥈
+                        {% elif loop.index == 3 %}🥉
+                        {% else %}{{ loop.index }}
+                        {% endif %}
+                    </div>
+                    <div class="pseudo">
+                        {{ user.pseudo }}
+                        {% if key == 'general' %}
+                        <span class="meta">
+                            {% set parts = [] %}
+                            {% for s_nom, n in user.votes_par_salle.items() %}
+                                {% set _ = parts.append(s_nom ~ ' : ' ~ n) %}
+                            {% endfor %}
+                            {% if parts %}{{ parts | join(' · ') }}{% else %}—{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="votes">
+                        {{ user.votes_salle if key != 'general' else user.votes }}<span class="unite"> vote{{ 's' if (user.votes_salle if key != 'general' else user.votes) > 1 else '' }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="vide">Aucun vote pour le moment.</div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <script>
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+                document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+                document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.panel === target));
+            });
+        });
+    </script>
 
 </body>
 </html>
