@@ -3,14 +3,14 @@ services:
     build: .
     container_name: silent-disco
     restart: unless-stopped
-    network_mode: host          # expose directement sur le port du host, comme tes autres services
+    ports:
+      - "5001:5001"
     environment:
-      - PORT=5001
       - SPOTIFY_REDIRECT_URI=https://silentdisco.evilo.eu/callback
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-change_me}
       - SECRET_KEY=${SECRET_KEY:-change_me}
-      - SPOTIFY_CACHE_DIR=/app/caches   # où sont persistés les .cache-<salle>
+      - SPOTIFY_CACHE_DIR=/app/caches
     volumes:
-      - ./config:/app/config            # config/salles.json (éditable via UI admin)
-      - ./logs:/app/logs                # tous les logs
-      - ./caches:/app/caches            # tokens OAuth (un fichier par salle)
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./caches:/app/caches
