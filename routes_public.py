@@ -7,6 +7,17 @@ from flask import abort, redirect, render_template, request, url_for
 from stats import obtenir_classement
 
 
+def _ip_reelle():
+    """IP du client réel derrière Cloudflare / Caddy."""
+    cf = request.headers.get('CF-Connecting-IP')
+    if cf:
+        return cf.strip()
+    xff = request.headers.get('X-Forwarded-For')
+    if xff:
+        return xff.split(',')[0].strip()
+    return request.remote_addr
+
+
 def register_public_routes(app, socketio, manager):
 
     @app.route('/')
@@ -18,7 +29,7 @@ def register_public_routes(app, socketio, manager):
         salle = manager.get(salle_nom)
         if salle is None:
             abort(404)
-        deja_vote = salle.a_vote(request.remote_addr)
+        deja_vote = salle.a_vote(_ip_reelle())
         return render_template('vote.html', salle=salle, deja_vote=deja_vote)
 
     @app.route('/display/<salle_nom>')
@@ -57,9 +68,23 @@ def register_public_routes(app, socketio, manager):
     def callback():
         salle_nom = request.args.get('state')
         code = request.args.get('code')
+        erreur_spotify = request.args.get('error')
+
+        print(f"[callback] state={salle_nom!r} code={'present' if code else 'absent'} "
+              f"error={erreur_spotify!r}")
+
+        if erreur_spotify:
+            return f"<p>Spotify a refusé l'autorisation : <b>{erreur_spotify}</b></p>", 400
+        if not salle_nom:
+            return "<p>Paramètre <code>state</code> manquant.</p>", 400
+        if not code:
+            return "<p>Paramètre <code>code</code> manquant.</p>", 400
+
         salle = manager.get(salle_nom)
-        if salle is None or not code:
-            abort(400)
+        if salle is None:
+            return (f"<p>Salle <b>{salle_nom}</b> inconnue. Salles actives : "
+                    f"{', '.join(manager.noms()) or '(aucune)'}.</p>"), 400
+
         try:
             salle.finaliser_auth(code)
             salle.initialiser_pool()
@@ -71,5 +96,5 @@ def register_public_routes(app, socketio, manager):
             )
         except Exception as e:
             traceback.print_exc()
-            return f"<p>Erreur : {e}</p>"
+            return f"<p>Erreur d'auth ou de chargement : {e}</p>", 500
         return f"<p>Salle <b>{salle_nom}</b> connectée. Tu peux fermer cet onglet.</p>"

@@ -7,6 +7,20 @@ from logs_util import logger_vote
 from stats import enregistrer_vote
 
 
+def _ip_reelle():
+    """
+    Récupère l'IP du client réel derrière Cloudflare / Caddy.
+    Priorité : CF-Connecting-IP (Cloudflare) > X-Forwarded-For > remote_addr.
+    """
+    cf = request.headers.get('CF-Connecting-IP')
+    if cf:
+        return cf.strip()
+    xff = request.headers.get('X-Forwarded-For')
+    if xff:
+        return xff.split(',')[0].strip()
+    return request.remote_addr
+
+
 def register_sockets(socketio, manager):
 
     @socketio.on('rejoindre_salle')
@@ -27,7 +41,7 @@ def register_sockets(socketio, manager):
 
     @socketio.on('voter')
     def on_vote(data):
-        ip = request.remote_addr
+        ip = _ip_reelle()
         salle_nom = (data or {}).get('salle')
         chanson_id = (data or {}).get('chanson_id')
         pseudo = ((data or {}).get('pseudo') or 'anonyme').strip()[:30] or 'anonyme'
