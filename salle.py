@@ -60,6 +60,17 @@ class Salle:
         )
         self.sp = spotipy.Spotify(auth_manager=self.auth_manager)
 
+    @property
+    def couleur_rgb(self):
+        """Retourne la couleur au format 'r, g, b' pour usage dans rgba(...)."""
+        hex_c = self.couleur.lstrip('#')
+        if len(hex_c) == 3:
+            hex_c = ''.join(c * 2 for c in hex_c)
+        try:
+            return ', '.join(str(int(hex_c[i:i+2], 16)) for i in (0, 2, 4))
+        except ValueError:
+            return '29, 185, 84'
+
     # --- Cycle de vie ---
 
     def invalider_cache(self):

@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
 </head>
-<body>
+{% if salles %}
+<body style="--c1-rgb: {{ salles[0].couleur_rgb }}; --c2-rgb: {{ (salles[1] if salles|length > 1 else salles[0]).couleur_rgb }};">
+{% else %}
+<body style="--c1-rgb: 29, 185, 84; --c2-rgb: 29, 185, 84;">
+{% endif %}
 
     <!-- Étape 1 : saisie du pseudo -->
     <div id="pseudo-step">
@@ -38,10 +42,26 @@
 
         <div class="salles-grid">
             {% for salle in salles %}
-            <a class="salle-carte {{ salle.nom }}" href="{{ url_for('vote', salle_nom=salle.nom) }}">
+            <a class="salle-carte"
+               href="{{ url_for('vote', salle_nom=salle.nom) }}"
+               style="--c: {{ salle.couleur }}; --c-rgb: {{ salle.couleur_rgb }}">
                 <div class="badge"></div>
                 <div class="nom">{{ salle.nom }}</div>
+                {% if salle.chanson_en_cours.titre %}
+                <div class="now-playing">
+                    <img class="np-pochette" src="{{ salle.chanson_en_cours.pochette }}" alt="">
+                    <div class="np-infos">
+                        <div class="np-label">
+                            <span class="np-dot"></span>
+                            {% if salle.chanson_en_cours.en_lecture %}En lecture{% else %}En pause{% endif %}
+                        </div>
+                        <div class="np-titre">{{ salle.chanson_en_cours.titre }}</div>
+                        <div class="np-artiste">{{ salle.chanson_en_cours.artiste }}</div>
+                    </div>
+                </div>
+                {% else %}
                 <div class="sous-titre">Voter pour la prochaine chanson</div>
+                {% endif %}
             </a>
             {% endfor %}
         </div>

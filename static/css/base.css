@@ -9,16 +9,6 @@
     --text-muted: #9a9a9a;
 }
 
-body.salle-pop {
-    --accent: #3b82f6;
-    --accent-rgb: 59, 130, 246;
-}
-
-body.salle-nostalgie {
-    --accent: #1DB954;
-    --accent-rgb: 29, 185, 84;
-}
-
 html, body {
     margin: 0;
     padding: 0;

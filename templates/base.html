@@ -9,7 +9,7 @@
     {% block styles %}{% endblock %}
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
-<body class="salle-{{ salle.nom }}">
+<body class="salle-{{ salle.nom }}" style="--accent: {{ salle.couleur }}; --accent-rgb: {{ salle.couleur_rgb }}">
     {% block content %}{% endblock %}
     {% block scripts %}{% endblock %}
 </body>
