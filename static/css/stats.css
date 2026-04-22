@@ -64,8 +64,11 @@ body {
     background: rgba(255, 255, 255, 0.08);
     color: #fff;
 }
-.tab.tab-pop.active { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-.tab.tab-nostalgie.active { background: rgba(29, 185, 84, 0.2); color: #1DB954; }
+/* Tabs de salle : on utilise les vars CSS inline pour adapter à la couleur */
+.tab[style*="--tab-accent"].active {
+    background: rgba(var(--tab-accent-rgb), 0.2);
+    color: var(--tab-accent);
+}
 
 .panel { display: none; }
 .panel.active { display: block; }

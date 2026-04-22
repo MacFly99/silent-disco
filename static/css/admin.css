@@ -114,94 +114,55 @@ body {
 }
 .btn-spotify:active { transform: scale(0.97); }
 
-/* --- Édition des salles --- */
-#salles-editor {
+/* --- Liste compacte des salles --- */
+#salles-liste {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 8px;
 }
-.salle-edit {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 14px 16px;
-}
-.salle-edit-header {
+.salle-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
 }
+.salle-row:hover { background: rgba(255, 255, 255, 0.07); }
 .pastille-couleur {
     width: 14px;
     height: 14px;
     border-radius: 50%;
     flex-shrink: 0;
 }
-.salle-edit .champ-nom {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 1.1em;
+.salle-row-nom {
     font-weight: 700;
+    font-size: 1em;
     text-transform: capitalize;
-    outline: none;
 }
-.salle-edit .champ-nom:not([readonly]) {
-    background: rgba(255, 255, 255, 0.06);
-    padding: 6px 10px;
-    border-radius: 6px;
-}
-.salle-edit .champ-couleur {
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-}
-.salle-edit .btn-supprimer {
-    background: transparent;
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 700;
-}
-.salle-edit .btn-supprimer:hover { background: rgba(239, 68, 68, 0.1); }
-.salle-edit label {
-    display: block;
-    font-size: 0.8em;
+.salle-row-meta {
     color: var(--text-muted);
-    margin: 8px 0 4px 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-}
-.salle-edit label .hint {
-    text-transform: none;
-    letter-spacing: 0;
-    font-weight: 400;
-    font-style: italic;
-}
-.salle-edit input[type="text"],
-.salle-edit input[type="password"] {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 8px;
+    font-size: 0.8em;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.9em;
-    outline: none;
-    box-sizing: border-box;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
-.salle-edit input:focus { border-color: var(--accent); }
+.salle-row-edit {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+.salle-row-edit:hover { background: rgba(255, 255, 255, 0.08); }
 
 .salles-actions {
     display: flex;
@@ -209,17 +170,18 @@ body {
     margin-top: 14px;
     flex-wrap: wrap;
 }
-.btn-primaire, .btn-secondaire {
+
+.btn-primaire, .btn-secondaire, .btn-danger {
     padding: 10px 18px;
     border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
     font-size: 0.95em;
+    border: none;
 }
 .btn-primaire {
     background: #1DB954;
     color: #fff;
-    border: none;
 }
 .btn-primaire:hover { filter: brightness(1.1); }
 .btn-primaire:disabled { background: #333; color: #777; cursor: not-allowed; }
@@ -229,6 +191,89 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .btn-secondaire:hover { background: rgba(255, 255, 255, 0.05); }
+.btn-danger {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.btn-danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* --- Modal édition salle --- */
+.modal-salle {
+    max-width: 460px;
+    text-align: left;
+}
+.modal-salle-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.modal-salle-header h3 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.2em;
+    color: #fff;
+}
+#salle-modal-fermer {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.3em;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+#salle-modal-fermer:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+.modal-salle label {
+    display: block;
+    font-size: 0.75em;
+    color: var(--text-muted);
+    margin: 12px 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+.modal-salle label .hint {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-muted);
+}
+.modal-salle input[type="text"],
+.modal-salle input[type="password"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    outline: none;
+    box-sizing: border-box;
+}
+.modal-salle input[type="text"]:focus,
+.modal-salle input[type="password"]:focus { border-color: #1DB954; }
+.modal-salle input[type="color"] {
+    width: 48px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 6px;
+}
+
+.modal-salle-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    align-items: center;
+}
 
 .note {
     color: var(--text-muted);

@@ -3,15 +3,20 @@ Gestionnaire du cycle de vie des salles :
 - charge/recharge depuis config_salles.json
 - démarre / arrête les threads de surveillance
 - invalide les caches Spotify quand les credentials changent
+- nettoie les caches orphelins quand une salle est supprimée
 - expose une API simple : lister, récupérer, rebuild complet, modifier une salle
 """
 
+import glob
+import os
 import threading
 from threading import Thread
 
 from config_salles import charger, sauvegarder
 from salle import Salle
 from spotify_sync import demarrer_surveillance_salle
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class SalleManager:
@@ -43,11 +48,13 @@ class SalleManager:
         with self._lock:
             for cfg in configs:
                 self._demarrer(cfg)
+            self._nettoyer_caches_orphelins()
 
     def rebuild(self, nouvelles_configs):
         """
         Remplace la config complète : stoppe tout, sauvegarde, redémarre.
         Invalide les caches dont le client_id a changé.
+        Nettoie les caches orphelins (salles qui n'existent plus).
         """
         sauvegarder(nouvelles_configs)  # valide + écrit
         with self._lock:
@@ -60,12 +67,24 @@ class SalleManager:
             for cfg in nouvelles_configs:
                 nom = cfg['nom']
                 self._demarrer(cfg)
-                # Si client_id a changé, le cache est obsolète : on le vire
                 nouvelle = self._salles[nom]
                 ancien_client = anciens_clients.get(nom)
                 if ancien_client and ancien_client != cfg['client_id']:
                     print(f"[{nom}] client_id changé -> invalidation du cache")
                     nouvelle.invalider_cache()
+            self._nettoyer_caches_orphelins()
+
+    def _nettoyer_caches_orphelins(self):
+        """Supprime les fichiers .cache-<nom> dont la salle n'existe plus."""
+        noms_actifs = set(self._salles.keys())
+        for chemin in glob.glob(os.path.join(BASE_DIR, '.cache-*')):
+            nom_cache = os.path.basename(chemin)[len('.cache-'):]
+            if nom_cache and nom_cache not in noms_actifs:
+                try:
+                    os.remove(chemin)
+                    print(f"[manager] cache orphelin supprimé : {os.path.basename(chemin)}")
+                except OSError as e:
+                    print(f"[manager] impossible de supprimer {chemin} : {e}")
 
     # --- Internes (appelés avec le lock déjà pris) ---
 

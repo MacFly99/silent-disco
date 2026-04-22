@@ -1,30 +1,5 @@
 (function() {
-    // --- Édition des salles ---
-    const editor = document.getElementById('salles-editor');
-    const btnAjouter = document.getElementById('btn-ajouter-salle');
-    const btnSauver = document.getElementById('btn-sauver-salles');
-
-    function creerCarte(nom = '', couleur = '#1DB954', clientId = '', playlistId = '') {
-        const div = document.createElement('div');
-        div.className = 'salle-edit';
-        div.dataset.nom = nom;
-        div.innerHTML = `
-            <div class="salle-edit-header">
-                <span class="pastille-couleur" style="background: ${couleur}"></span>
-                <input class="champ-nom" type="text" value="${escapeHtml(nom)}" placeholder="ex: pop">
-                <input class="champ-couleur" type="color" value="${couleur}">
-                <button class="btn-supprimer" type="button" aria-label="Supprimer">✕</button>
-            </div>
-            <label>Client ID</label>
-            <input class="champ-client-id" type="text" value="${escapeHtml(clientId)}">
-            <label>Client Secret</label>
-            <input class="champ-client-secret" type="password" value="" placeholder="">
-            <label>Playlist ID</label>
-            <input class="champ-playlist-id" type="text" value="${escapeHtml(playlistId)}">
-        `;
-        brancher(div);
-        return div;
-    }
+    const flash = document.getElementById('flash');
 
     function escapeHtml(s) {
         return String(s).replace(/[&<>"']/g, c => ({
@@ -32,70 +7,206 @@
         }[c]));
     }
 
-    function brancher(carte) {
-        const pastille = carte.querySelector('.pastille-couleur');
-        const couleurInput = carte.querySelector('.champ-couleur');
-        couleurInput.addEventListener('input', () => {
-            pastille.style.background = couleurInput.value;
-        });
-        carte.querySelector('.btn-supprimer').addEventListener('click', () => {
-            if (confirm('Supprimer cette salle ?')) carte.remove();
-        });
+    function afficherFlash(msg) {
+        flash.textContent = msg;
+        flash.classList.add('visible');
+        setTimeout(() => flash.classList.remove('visible'), 2500);
     }
 
-    // Brancher les cartes rendues côté serveur
-    editor.querySelectorAll('.salle-edit').forEach(brancher);
+    // ========================================================================
+    // Gestion des salles via modal
+    // ========================================================================
 
-    btnAjouter.addEventListener('click', () => {
-        const carte = creerCarte();
-        editor.appendChild(carte);
-        carte.querySelector('.champ-nom').focus();
+    // État : liste JS miroir de config/salles.json, injectée par le template.
+    // On la récupère à partir du DOM initial pour éviter un appel supplémentaire.
+    let salles = [];
+    document.querySelectorAll('#salles-liste .salle-row').forEach(row => {
+        salles.push({
+            nom: row.dataset.nom,
+            couleur: row.querySelector('.pastille-couleur').style.background,
+            playlist_id: '',       // sera rempli quand on clique "éditer" (via fetch)
+            client_id: '',
+            client_secret: '',
+            client_secret_masque: '',
+            _loaded: false,
+        });
     });
 
-    btnSauver.addEventListener('click', async () => {
-        const payload = [];
-        for (const carte of editor.querySelectorAll('.salle-edit')) {
-            payload.push({
-                nom: carte.querySelector('.champ-nom').value.trim().toLowerCase(),
-                couleur: carte.querySelector('.champ-couleur').value,
-                client_id: carte.querySelector('.champ-client-id').value.trim(),
-                client_secret: carte.querySelector('.champ-client-secret').value.trim(),
-                playlist_id: carte.querySelector('.champ-playlist-id').value.trim(),
-            });
+    const modal = document.getElementById('salle-modal');
+    const modalTitre = document.getElementById('salle-modal-titre');
+    const champNom = document.getElementById('salle-modal-nom');
+    const champCouleur = document.getElementById('salle-modal-couleur');
+    const champClientId = document.getElementById('salle-modal-client-id');
+    const champClientSecret = document.getElementById('salle-modal-client-secret');
+    const champPlaylistId = document.getElementById('salle-modal-playlist-id');
+    const secretHint = document.getElementById('salle-modal-secret-hint');
+    const btnAjouter = document.getElementById('btn-ajouter-salle');
+    const btnFermer = document.getElementById('salle-modal-fermer');
+    const btnAnnuler = document.getElementById('salle-modal-annuler');
+    const btnEnregistrer = document.getElementById('salle-modal-enregistrer');
+    const btnSupprimer = document.getElementById('salle-modal-supprimer');
+
+    let editionEnCours = null;  // nom de la salle en cours d'édition, ou null pour création
+
+    function ouvrirModalEdition(salle) {
+        editionEnCours = salle.nom;
+        modalTitre.textContent = 'Éditer la salle';
+        champNom.value = salle.nom;
+        champNom.readOnly = true;
+        champCouleur.value = salle.couleur || '#1DB954';
+        champClientId.value = salle.client_id || '';
+        champClientSecret.value = '';
+        champClientSecret.placeholder = salle.client_secret_masque || '';
+        secretHint.textContent = salle.client_secret_masque
+            ? `(laisse vide pour garder l'actuel : ${salle.client_secret_masque})`
+            : '';
+        champPlaylistId.value = salle.playlist_id || '';
+        btnSupprimer.style.display = 'inline-block';
+        modal.classList.add('visible');
+    }
+
+    function ouvrirModalCreation() {
+        editionEnCours = null;
+        modalTitre.textContent = 'Nouvelle salle';
+        champNom.value = '';
+        champNom.readOnly = false;
+        champCouleur.value = '#1DB954';
+        champClientId.value = '';
+        champClientSecret.value = '';
+        champClientSecret.placeholder = '';
+        secretHint.textContent = '';
+        champPlaylistId.value = '';
+        btnSupprimer.style.display = 'none';
+        modal.classList.add('visible');
+        setTimeout(() => champNom.focus(), 50);
+    }
+
+    function fermerModal() {
+        modal.classList.remove('visible');
+        editionEnCours = null;
+    }
+
+    async function chargerDetailsSalle(nom) {
+        // Récupère la config complète (avec secret masqué) depuis le serveur
+        const res = await fetch('/admin/salles');
+        const data = await res.json();
+        return data.find(s => s.nom === nom);
+    }
+
+    // --- Handlers ---
+
+    btnAjouter.addEventListener('click', ouvrirModalCreation);
+    btnFermer.addEventListener('click', fermerModal);
+    btnAnnuler.addEventListener('click', fermerModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) fermerModal();
+    });
+
+    // Clic sur une salle dans la liste → ouvrir modal édition
+    document.querySelectorAll('#salles-liste .salle-row').forEach(row => {
+        row.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const nom = row.dataset.nom;
+            try {
+                const salle = await chargerDetailsSalle(nom);
+                if (salle) ouvrirModalEdition(salle);
+            } catch (err) {
+                alert('Erreur de chargement : ' + err.message);
+            }
+        });
+    });
+
+    btnEnregistrer.addEventListener('click', async () => {
+        const nom = champNom.value.trim().toLowerCase();
+        if (!nom) { alert('Nom requis'); return; }
+
+        // Construire le payload complet : on repart de la liste serveur
+        const res = await fetch('/admin/salles');
+        const liste = await res.json();
+
+        const entry = {
+            nom,
+            couleur: champCouleur.value,
+            client_id: champClientId.value.trim(),
+            client_secret: champClientSecret.value.trim(),
+            playlist_id: champPlaylistId.value.trim(),
+        };
+
+        if (!entry.client_id || !entry.playlist_id) {
+            alert('Client ID et Playlist ID sont obligatoires');
+            return;
         }
-        btnSauver.disabled = true;
+
+        const idx = liste.findIndex(s => s.nom === (editionEnCours || nom));
+        if (idx >= 0) {
+            // Édition : on conserve le secret masqué si vide (backend gère)
+            liste[idx] = entry;
+        } else {
+            if (!entry.client_secret) {
+                alert('Client Secret requis pour une nouvelle salle');
+                return;
+            }
+            liste.push(entry);
+        }
+
+        btnEnregistrer.disabled = true;
         try {
-            const res = await fetch('/admin/salles', {
+            const resp = await fetch('/admin/salles', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload),
+                body: JSON.stringify(liste),
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'erreur inconnue');
-            afficherFlash('Salles sauvegardées');
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'erreur inconnue');
+            afficherFlash('Salle enregistrée');
             setTimeout(() => window.location.reload(), 600);
         } catch (e) {
             alert('Erreur : ' + e.message);
-            btnSauver.disabled = false;
+            btnEnregistrer.disabled = false;
         }
     });
 
-    // --- Archivage (existant) ---
+    btnSupprimer.addEventListener('click', async () => {
+        if (!editionEnCours) return;
+        if (!confirm(`Supprimer la salle "${editionEnCours}" ?\nSon cache Spotify sera effacé.`)) return;
+
+        const res = await fetch('/admin/salles');
+        const liste = (await res.json()).filter(s => s.nom !== editionEnCours);
+
+        btnSupprimer.disabled = true;
+        try {
+            const resp = await fetch('/admin/salles', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(liste),
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'erreur inconnue');
+            afficherFlash('Salle supprimée');
+            setTimeout(() => window.location.reload(), 600);
+        } catch (e) {
+            alert('Erreur : ' + e.message);
+            btnSupprimer.disabled = false;
+        }
+    });
+
+    // ========================================================================
+    // Archivage des logs (existant)
+    // ========================================================================
     const backdrop = document.getElementById('modal-backdrop');
     const modalType = document.getElementById('modal-type');
     const modalInput = document.getElementById('modal-input');
     const btnConfirmer = document.getElementById('btn-confirmer');
-    const btnAnnuler = document.getElementById('btn-annuler');
-    const flash = document.getElementById('flash');
+    const btnAnnulerArchiv = document.getElementById('btn-annuler');
     let typeEnCours = null;
 
     document.querySelectorAll('.btn-clear').forEach(btn => {
-        btn.addEventListener('click', () => ouvrirModal(btn.dataset.type));
+        btn.addEventListener('click', () => ouvrirModalArchiv(btn.dataset.type));
     });
 
-    btnAnnuler.addEventListener('click', fermerModal);
+    btnAnnulerArchiv.addEventListener('click', fermerModalArchiv);
     backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) fermerModal();
+        if (e.target === backdrop) fermerModalArchiv();
     });
 
     modalInput.addEventListener('input', () => {
@@ -112,7 +223,7 @@
             afficherFlash(n === 0
                 ? `Aucun fichier à archiver pour ${typeEnCours}`
                 : `${n} fichier(s) archivé(s) pour ${typeEnCours}`);
-            fermerModal();
+            fermerModalArchiv();
             setTimeout(() => window.location.reload(), 800);
         } catch (e) {
             alert('Erreur : ' + e.message);
@@ -120,7 +231,7 @@
         }
     });
 
-    function ouvrirModal(type) {
+    function ouvrirModalArchiv(type) {
         typeEnCours = type;
         modalType.textContent = type;
         modalInput.value = '';
@@ -129,14 +240,8 @@
         setTimeout(() => modalInput.focus(), 50);
     }
 
-    function fermerModal() {
+    function fermerModalArchiv() {
         backdrop.classList.remove('visible');
         typeEnCours = null;
-    }
-
-    function afficherFlash(msg) {
-        flash.textContent = msg;
-        flash.classList.add('visible');
-        setTimeout(() => flash.classList.remove('visible'), 2500);
     }
 })();

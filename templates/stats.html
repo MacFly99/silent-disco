@@ -21,21 +21,28 @@
     </div>
 
     <div class="tabs">
-        <button class="tab active" data-tab="general">Général</button>
-        <button class="tab tab-pop" data-tab="pop">Pop</button>
-        <button class="tab tab-nostalgie" data-tab="nostalgie">Nostalgie</button>
+        {% for c in classements %}
+        <button
+            class="tab {% if loop.first %}active{% endif %}"
+            data-tab="{{ c.key }}"
+            {% if c.couleur %}style="--tab-accent: {{ c.couleur }}; --tab-accent-rgb: {{ c.couleur_rgb }}"{% endif %}>
+            {{ c.label }}
+        </button>
+        {% endfor %}
     </div>
 
-    {% for key, classement in classements.items() %}
-    <div class="panel {% if key == 'general' %}active{% endif %}" data-panel="{{ key }}">
+    {% for c in classements %}
+    {% set scope_key = 'general' if c.key == 'general' else c.key %}
+    {% set champ_votes = 'votes' if c.key == 'general' else 'votes_salle' %}
+    <div class="panel {% if loop.first %}active{% endif %}" data-panel="{{ c.key }}">
         <div class="compteur">
-            {{ classement | length }} votant{{ 's' if classement | length > 1 else '' }}
-            · {{ classement | sum(attribute='votes_salle' if key != 'general' else 'votes') }} vote{{ 's' if (classement | sum(attribute='votes_salle' if key != 'general' else 'votes')) > 1 else '' }}
+            {{ c.users | length }} votant{{ 's' if c.users | length > 1 else '' }}
+            · {{ c.users | sum(attribute=champ_votes) }} vote{{ 's' if (c.users | sum(attribute=champ_votes)) > 1 else '' }}
         </div>
 
         <div class="classement">
-            {% if classement %}
-                {% for user in classement %}
+            {% if c.users %}
+                {% for user in c.users %}
                 <div class="ligne {% if loop.index == 1 %}top-1{% elif loop.index == 2 %}top-2{% elif loop.index == 3 %}top-3{% endif %}">
                     <div class="rang">
                         {% if loop.index == 1 %}🥇
@@ -46,7 +53,7 @@
                     </div>
                     <div class="pseudo">
                         {{ user.pseudo }}
-                        {% if key == 'general' %}
+                        {% if c.key == 'general' %}
                         <span class="meta">
                             {% set parts = [] %}
                             {% for s_nom, n in user.votes_par_salle.items() %}
@@ -57,7 +64,8 @@
                         {% endif %}
                     </div>
                     <div class="votes">
-                        {{ user.votes_salle if key != 'general' else user.votes }}<span class="unite"> vote{{ 's' if (user.votes_salle if key != 'general' else user.votes) > 1 else '' }}</span>
+                        {% set n = user.votes_salle if c.key != 'general' else user.votes %}
+                        {{ n }}<span class="unite"> vote{{ 's' if n > 1 else '' }}</span>
                     </div>
                 </div>
                 {% endfor %}

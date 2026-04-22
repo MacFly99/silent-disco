@@ -30,11 +30,18 @@ def register_public_routes(app, socketio, manager):
 
     @app.route('/stats')
     def stats_page():
-        classements = {
-            'general': obtenir_classement(),
-            'pop': obtenir_classement('pop'),
-            'nostalgie': obtenir_classement('nostalgie'),
-        }
+        salles = manager.liste()
+        classements = [
+            {'key': 'general', 'label': 'Général', 'couleur': None, 'users': obtenir_classement()}
+        ]
+        for s in salles:
+            classements.append({
+                'key': s.nom,
+                'label': s.nom,
+                'couleur': s.couleur,
+                'couleur_rgb': s.couleur_rgb,
+                'users': obtenir_classement(s.nom),
+            })
         return render_template('stats.html', classements=classements)
 
     # --- OAuth Spotify : à faire UNE FOIS par salle. Le cache persiste. ---
