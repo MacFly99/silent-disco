@@ -1,0 +1,52 @@
+"""Handlers SocketIO : rejoindre une salle, voter."""
+
+from flask import request
+from flask_socketio import emit, join_room
+
+from logs_util import logger_vote
+from stats import enregistrer_vote
+
+
+def register_sockets(socketio, salles):
+
+    @socketio.on('rejoindre_salle')
+    def on_rejoindre(data):
+        salle_nom = (data or {}).get('salle')
+        if salle_nom not in salles:
+            return
+        join_room(salle_nom)
+        salle = salles[salle_nom]
+        emit('mise_a_jour_votes', {
+            'chansons': salle.chansons,
+            'tour': salle.tour,
+            'salle': salle.nom,
+        })
+        emit('file_attente', {'file': salle.file_attente})
+        if salle.chanson_en_cours['titre']:
+            emit('chanson_en_cours', salle.chanson_en_cours)
+
+    @socketio.on('voter')
+    def on_vote(data):
+        ip = request.remote_addr
+        salle_nom = (data or {}).get('salle')
+        chanson_id = (data or {}).get('chanson_id')
+        pseudo = ((data or {}).get('pseudo') or 'anonyme').strip()[:30] or 'anonyme'
+        user_uuid = (data or {}).get('uuid')
+
+        salle = salles.get(salle_nom)
+        if salle is None:
+            emit('erreur', {'message': 'Salle inconnue'})
+            return
+
+        chanson = salle.ajouter_vote(chanson_id, pseudo, ip)
+        if chanson is None:
+            emit('erreur', {'message': 'Tu as déjà voté !'})
+            return
+
+        logger_vote(salle.nom, pseudo, ip, chanson)
+        enregistrer_vote(user_uuid, pseudo)
+        socketio.emit(
+            'mise_a_jour_votes',
+            {'chansons': salle.chansons, 'tour': salle.tour, 'salle': salle.nom},
+            room=salle.nom,
+        )

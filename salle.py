@@ -2,7 +2,6 @@ import os
 import random
 
 import spotipy
-from spotipy.cache_handler import MemoryCacheHandler
 from spotipy.oauth2 import SpotifyOAuth
 
 SCOPE = 'user-read-currently-playing user-read-playback-state user-modify-playback-state'
@@ -24,7 +23,6 @@ class Salle:
         self.playlist_id = os.environ[f'{prefixe}_PLAYLIST_ID']
         client_id = os.environ[f'{prefixe}_CLIENT_ID']
         client_secret = os.environ[f'{prefixe}_CLIENT_SECRET']
-        refresh_token = os.environ.get(f'{prefixe}_REFRESH_TOKEN', '').strip()
 
         # État du vote
         self.pool_playlist = []
@@ -45,23 +43,18 @@ class Salle:
         }
         self.file_attente = []
 
-        # Spotify : cache en mémoire, amorçage via refresh_token du .env
+        # Spotify : cache fichier, un fichier par salle (persistant entre restarts)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
         self.auth_manager = SpotifyOAuth(
             client_id=client_id,
             client_secret=client_secret,
             redirect_uri=os.environ.get('SPOTIFY_REDIRECT_URI', 'http://127.0.0.1:5001/callback'),
             scope=SCOPE,
-            cache_handler=MemoryCacheHandler(),
+            cache_path=os.path.join(base_dir, f'.cache-{nom}'),
+            show_dialog=True,
             open_browser=False,
         )
         self.sp = spotipy.Spotify(auth_manager=self.auth_manager)
-
-        if refresh_token:
-            try:
-                self.auth_manager.refresh_access_token(refresh_token)
-                print(f"[{nom}] Auth chargée depuis .env")
-            except Exception as e:
-                print(f"[{nom}] Refresh token invalide : {e}")
 
     # --- Authentification ---
 
@@ -71,6 +64,12 @@ class Salle:
             return token is not None and token.get('access_token') is not None
         except Exception:
             return False
+
+    def authorize_url(self):
+        return self.auth_manager.get_authorize_url(state=self.nom)
+
+    def finaliser_auth(self, code):
+        self.auth_manager.get_access_token(code, as_dict=False)
 
     # --- Pool ---
 
