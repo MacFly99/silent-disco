@@ -82,6 +82,33 @@
         render();
     });
 
+    // --- Bandeau "X chansons à passer avant ton vote" ---
+    const fileInfo = document.getElementById('file-info');
+    const fileTitre = fileInfo.querySelector('.file-info-titre');
+    const fileListe = fileInfo.querySelector('.file-info-liste');
+
+    socket.on('file_attente', (data) => {
+        const file = (data && data.file) || [];
+        if (!file.length) {
+            fileInfo.style.display = 'none';
+            return;
+        }
+        fileInfo.style.display = 'block';
+        const n = file.length;
+        fileTitre.textContent = n === 1
+            ? '1 chanson à passer avant ton vote'
+            : `${n} chansons à passer avant ton vote`;
+        fileListe.innerHTML = file.map(c => `
+            <div class="file-info-item">
+                <img src="${c.pochette}" alt="">
+                <div>
+                    <div class="t">${escapeHtml(c.titre)}</div>
+                    <div class="a">${escapeHtml(c.artiste)}</div>
+                </div>
+            </div>
+        `).join('');
+    });
+
     socket.on('erreur', (data) => {
         alert(data.message);
     });

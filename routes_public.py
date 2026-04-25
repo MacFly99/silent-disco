@@ -39,21 +39,29 @@ def register_public_routes(app, socketio, manager):
             abort(404)
         return render_template('display.html', salle=salle)
 
-    @app.route('/stats')
-    def stats_page():
+    def _build_classements():
         salles = manager.liste()
-        classements = [
+        out = [
             {'key': 'general', 'label': 'Général', 'couleur': None, 'users': obtenir_classement()}
         ]
         for s in salles:
-            classements.append({
+            out.append({
                 'key': s.nom,
                 'label': s.nom,
                 'couleur': s.couleur,
                 'couleur_rgb': s.couleur_rgb,
                 'users': obtenir_classement(s.nom),
             })
-        return render_template('stats.html', classements=classements)
+        return out
+
+    @app.route('/stats')
+    def stats_page():
+        return render_template('stats.html', classements=_build_classements())
+
+    @app.route('/stats.json')
+    def stats_json():
+        from flask import jsonify
+        return jsonify(_build_classements())
 
     # --- OAuth Spotify : à faire UNE FOIS par salle. Le cache persiste. ---
 
