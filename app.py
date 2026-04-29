@@ -4,6 +4,8 @@ Options CLI :
   --clear       Efface user_stats.json et users.log avant de lancer
   --seed        Ajoute ~50 users fake avec votes aléatoires (pour tester /stats)
   --seed-clear  --clear + --seed
+  --fake [N]    Lance N salles simulées en RAM (pas de Spotify). N défaut = max dispo.
+                Ex : --fake 2  ou  --fake=3
 """
 
 import os
@@ -24,9 +26,27 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'musique2024')
 socketio = SocketIO(app)
 
+def _parse_fake_count(argv):
+    """Retourne le nombre de salles fake demandé, ou None si --fake absent."""
+    for i, arg in enumerate(argv):
+        if arg == '--fake':
+            if i + 1 < len(argv) and argv[i + 1].isdigit():
+                return int(argv[i + 1])
+            return 0  # 0 = max dispo (sentinelle)
+        if arg.startswith('--fake='):
+            valeur = arg.split('=', 1)[1]
+            return int(valeur) if valeur.isdigit() else 0
+    return None
+
+
 # --- Manager qui orchestre les salles (config/salles.json) ---
 manager = SalleManager(socketio)
-manager.charger_depuis_config()
+_fake_count = _parse_fake_count(sys.argv)
+if _fake_count is not None:
+    from fake_runner import lancer_fake
+    lancer_fake(manager, socketio, nb_salles=_fake_count or None)
+else:
+    manager.charger_depuis_config()
 
 # --- Wire-up ---
 register_public_routes(app, socketio, manager)

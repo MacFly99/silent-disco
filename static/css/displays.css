@@ -1,0 +1,201 @@
+html, body { height: 100%; }
+
+body.displays-mur {
+    margin: 0;
+    padding: 24px;
+    overflow: hidden;
+}
+
+.empty {
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 30vh;
+    font-size: 1.4em;
+}
+
+.grille-salles {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    grid-auto-rows: 1fr;
+}
+
+/* Pour 1 ou 2 salles : full hauteur */
+body[data-count="1"] .grille-salles { grid-template-columns: 1fr; }
+body[data-count="2"] .grille-salles { grid-template-columns: 1fr 1fr; }
+
+.tuile {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-top: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* --- Header : titre --- */
+.tuile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+.tuile-titre h2 {
+    margin: 4px 0 0 0;
+    font-size: 1.8em;
+    text-transform: capitalize;
+}
+.tuile-header .label-salle {
+    color: var(--accent);
+}
+
+/* --- Footer : QR centré --- */
+.tuile-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+.qr {
+    background: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    line-height: 0;
+}
+.qr img, .qr canvas { display: block; }
+.qr-legende {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+/* --- En cours --- */
+.en-cours {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.pochette-en-cours {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #222;
+    flex-shrink: 0;
+}
+.en-cours-infos {
+    flex: 1;
+    min-width: 0;
+}
+.titre-en-cours {
+    font-size: 1.1em;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.artiste-en-cours {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.barre-container {
+    width: 100%;
+    background: #2a2a2a;
+    border-radius: 4px;
+    height: 4px;
+    margin-bottom: 4px;
+}
+.barre {
+    height: 4px;
+    background: var(--accent);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.5s linear;
+}
+.temps {
+    font-size: 0.75em;
+    color: var(--text-muted);
+}
+
+/* --- Section vote --- */
+.section-vote {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.section-vote-titre {
+    font-size: 0.8em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+}
+.chansons {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    min-height: 0;
+}
+.chanson-card {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    min-width: 0;
+}
+.chanson-card img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+.chanson-card .titre {
+    font-weight: 700;
+    font-size: 0.85em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.chanson-card .artiste {
+    color: var(--text-muted);
+    font-size: 0.75em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+}
+.barre-votes-container {
+    width: 100%;
+    background: #2a2a2a;
+    border-radius: 4px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+.barre-votes {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.4s ease-out;
+}
+.votes-label {
+    font-size: 0.8em;
+    color: var(--accent);
+    font-weight: 700;
+}

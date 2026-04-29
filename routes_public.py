@@ -39,6 +39,19 @@ def register_public_routes(app, socketio, manager):
             abort(404)
         return render_template('display.html', salle=salle)
 
+    @app.route('/displays')
+    def displays():
+        salles_data = [{
+            'nom': s.nom,
+            'couleur': s.couleur,
+            'couleur_rgb': s.couleur_rgb,
+            'chansons': s.chansons,
+            'tour': s.tour,
+            'chanson_en_cours': s.chanson_en_cours,
+            'vote_url': url_for('vote', salle_nom=s.nom, _external=True),
+        } for s in manager.liste()]
+        return render_template('displays.html', salles=salles_data)
+
     def _build_classements():
         salles = manager.liste()
         out = [

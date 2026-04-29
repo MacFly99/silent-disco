@@ -37,7 +37,7 @@ def register_sockets(socketio, manager):
         })
         emit('file_attente', {'file': salle.file_attente})
         if salle.chanson_en_cours['titre']:
-            emit('chanson_en_cours', salle.chanson_en_cours)
+            emit('chanson_en_cours', {**salle.chanson_en_cours, 'salle': salle.nom})
 
     @socketio.on('voter')
     def on_vote(data):

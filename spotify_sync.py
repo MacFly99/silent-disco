@@ -69,7 +69,11 @@ def _traiter_tick(salle, socketio, current):
         'duree_ms': duree,
         'en_lecture': current['is_playing'],
     }
-    socketio.emit('chanson_en_cours', salle.chanson_en_cours, room=salle.nom)
+    socketio.emit(
+        'chanson_en_cours',
+        {**salle.chanson_en_cours, 'salle': salle.nom},
+        room=salle.nom,
+    )
 
 
 def _ajouter_a_spotify(salle, chanson):
