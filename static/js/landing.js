@@ -5,8 +5,26 @@
     const input = document.getElementById('pseudo-input');
     const submit = document.getElementById('pseudo-submit');
 
+    // ?next=/vote/<salle> : redirection automatique après saisie du pseudo
+    // (utilisé quand on arrive depuis un QR code de /displays)
+    function lireNext() {
+        const params = new URLSearchParams(window.location.search);
+        const next = params.get('next');
+        // Sécurité : on n'accepte que les paths internes commençant par "/"
+        if (next && next.startsWith('/') && !next.startsWith('//')) {
+            return next;
+        }
+        return null;
+    }
+
     function refresh() {
         const pseudo = localStorage.getItem('pseudo') || '';
+        const next = lireNext();
+        // Si déjà connecté + cible explicite → on y va direct
+        if (pseudo && next) {
+            window.location.replace(next);
+            return;
+        }
         if (pseudo) {
             body.classList.add('has-pseudo');
             pill.innerHTML = `<strong>${escapeHtml(pseudo)}</strong> · changer`;
@@ -38,6 +56,12 @@
             localStorage.setItem('user_uuid', uuid);
         }
         input.value = '';
+        // Si on arrive depuis un QR code (?next=/vote/...) on saute la sélection de salle
+        const next = lireNext();
+        if (next) {
+            window.location.replace(next);
+            return;
+        }
         refresh();
     });
 

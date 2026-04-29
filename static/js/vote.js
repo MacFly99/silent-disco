@@ -1,9 +1,10 @@
 (function() {
     const pseudo = localStorage.getItem('pseudo') || '';
 
-    // Pas de pseudo : on renvoie sur la home pour le saisir
+    // Pas de pseudo : on renvoie sur la home pour le saisir, en préservant la salle d'origine
     if (!pseudo) {
-        window.location.replace('/');
+        const next = encodeURIComponent(window.location.pathname);
+        window.location.replace('/?next=' + next);
         return;
     }
 
